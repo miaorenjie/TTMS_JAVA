@@ -1,0 +1,158 @@
+/*==============================================================*/
+/* DBMS name:      MySQL 5.0                                    */
+/* Created on:     2016/5/16 15:40:40                           */
+/*==============================================================*/
+
+
+drop table if exists data_dict;
+
+drop table if exists employee;
+
+drop table if exists play;
+
+drop table if exists sale;
+
+drop table if exists sale_item;
+
+drop table if exists schedule;
+
+drop table if exists seat;
+
+drop table if exists studio;
+
+drop table if exists ticket;
+
+/*==============================================================*/
+/* Table: data_dict                                             */
+/*==============================================================*/
+create table data_dict
+(
+   dict_id              int not null auto_increment,
+   dict_parent_id       int,
+   dict_index           int,
+   dict_name            varchar(200),
+   dict_value           varchar(100) not null,
+   primary key (dict_id)
+);
+
+/*==============================================================*/
+/* Table: employee                                              */
+/*==============================================================*/
+create table employee
+(
+   emp_id               int not null auto_increment,
+   emp_no               char(20) not null,
+   emp_name             varchar(100) not null,
+   emp_tel_num          char(20),
+   emp_addr             varchar(200),
+   emp_email            varchar(100),
+   primary key (emp_id)
+);
+
+/*==============================================================*/
+/* Table: play                                                  */
+/*==============================================================*/
+create table play
+(
+   play_id              int not null auto_increment,
+   play_type_id         int,
+   play_lang_id         int,
+   play_name            varchar(200),
+   play_introduction    varchar(2000),
+   play_image           longblob,
+   	int,
+   play_ticket_price    numeric(10,2),
+   play_status          smallint comment '取值含义：
+            0：待安排演出
+            1：已安排演出
+            -1：下线',
+   primary key (play_id)
+);
+
+/*==============================================================*/
+/* Table: sale                                                  */
+/*==============================================================*/
+create table sale
+(
+   sale_ID              bigint not null auto_increment,
+   emp_id               int,
+   sale_time            datetime,
+   sale_payment         decimal(10,2),
+   sale_change          numeric(10,2),
+   sale_type            smallint comment '类别取值含义：
+            1：销售单
+            -1：退款单',
+   sale_status          smallint comment '销售单状态如下：
+            0：代付款
+            1：已付款',
+   primary key (sale_ID)
+);
+
+/*==============================================================*/
+/* Table: sale_item                                             */
+/*==============================================================*/
+create table sale_item
+(
+   sale_item_id         bigint not null auto_increment,
+   ticket_id            bigint,
+   sale_ID              bigint,
+   sale_item_price      numeric(10,2),
+   primary key (sale_item_id)
+);
+
+/*==============================================================*/
+/* Table: schedule                                              */
+/*==============================================================*/
+create table schedule
+(
+   sched_id             int not null auto_increment,
+   studio_id            int,
+   play_id              int,
+   sched_time           datetime not null,
+   sched_ticket_price   numeric(10,2),
+   primary key (sched_id)
+);
+
+/*==============================================================*/
+/* Table: seat                                                  */
+/*==============================================================*/
+create table seat
+(
+   seat_id              int not null auto_increment,
+   studio_id            int,
+   seat_row             int,
+   seat_column          int,
+   primary key (seat_id)
+);
+
+/*==============================================================*/
+/* Table: studio                                                */
+/*==============================================================*/
+create table studio
+(
+   studio_id            int not null auto_increment,
+   studio_name          varchar(100) not null,
+   studio_row_count     int,
+   studio_col_count     int,
+   studio_introduction  varchar(2000),
+   primary key (studio_id)
+);
+
+/*==============================================================*/
+/* Table: ticket                                                */
+/*==============================================================*/
+create table ticket
+(
+   ticket_id            bigint not null auto_increment,
+   seat_id              int,
+   sched_id             int,
+   ticket_price         numeric(10,2),
+   ticket_status        smallint comment '含义如下：
+            0：待销售
+            1：锁定
+            9：卖出',
+   ticket_locked_time   datetime,
+   primary key (ticket_id)
+);
+
+
