@@ -29,4 +29,8 @@ public class ScheduleService {
 	public List<ScheduleInfo> FetchAll(){
 		return scheduleDao.select("");		
 	}
+	public List<ScheduleInfo> FetchId(int id){
+		
+		return scheduleDao.select(ScheduleInfo.SCHED_ID+" = "+id);		
+	}
 }

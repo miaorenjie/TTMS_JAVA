@@ -4,6 +4,7 @@ import java.util.List;
 
 import xupt.se.ttms.idao.DAOFactory;
 import xupt.se.ttms.idao.iStudioDAO;
+import xupt.se.ttms.model.SeatInfo;
 import xupt.se.ttms.model.Studio;
 
 public class StudioSrv {
@@ -27,5 +28,9 @@ public class StudioSrv {
 	
 	public List<Studio> FetchAll(){
 		return stuDAO.select("");		
+	}
+	public List<Studio> FetchId(int id){
+		
+		return stuDAO.select(Studio.STUDIO_ID+" = "+id);		
 	}
 }

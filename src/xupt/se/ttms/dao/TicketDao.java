@@ -111,7 +111,7 @@ public class TicketDao implements iTicketDao{
 					Ticket ticket=new Ticket();
 					ticket.setPlay_id(rst.getInt(Ticket.PLAY_ID));
 					ticket.setTicket_date(rst.getString(Ticket.TICKET_DATE));
-					ticket.setSeat_id(rst.getString(Ticket.SEAT_ID));
+					ticket.setSeat_id(rst.getInt(Ticket.SEAT_ID));
 					ticket.setSchedule_id(rst.getInt(Ticket.SCHEDULE_ID));
 					ticket.setTicket_id(rst.getInt(Ticket.TICKET_ID));
 				

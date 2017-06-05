@@ -1,286 +1,360 @@
 package xupt.se.ttms.view.sellticket;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Label;
-import java.awt.Rectangle;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.lang.model.type.TypeKind;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 
-import java.util.List;
-import java.util.Iterator;
-
+import xupt.se.ttms.model.PlayInfo;
+import xupt.se.ttms.model.ScheduleInfo;
 import xupt.se.ttms.model.Studio;
+import xupt.se.ttms.model.Ticket;
+import xupt.se.ttms.service.PlayService;
+import xupt.se.ttms.service.ScheduleService;
+import xupt.se.ttms.service.SellTicketService;
 import xupt.se.ttms.service.StudioSrv;
-import xupt.se.ttms.view.tmpl.*;
+import xupt.se.ttms.service.TicketService;
+import xupt.se.ttms.view.tmpl.MainUITmpl;
 
-class StudioTable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private JTable jt;
+public class SellTicketUI extends MainUITmpl {
 
-	public StudioTable(JScrollPane jp) {
-		
-		DefaultTableModel tabModel=new DefaultTableModel(){
-			private static final long serialVersionUID = 1L;
-
-			@Override              
-			public boolean isCellEditable(int row,int column){
-				return false;              
-			};
-		};
-		tabModel.addColumn("id");
-		tabModel.addColumn("name");
-		tabModel.addColumn("row");
-		tabModel.addColumn("column");
-		tabModel.addColumn("desciption");
-		//初始化列明
-		jt=new JTable(tabModel);	
-		
-		//设置各列的宽度
-	    TableColumnModel columnModel = jt.getColumnModel();
-	    
-	    //隐藏ID这一列
-        TableColumn column = columnModel.getColumn(0);
-        column.setMinWidth(0);
-        column.setMaxWidth(0);
-        column.setWidth(0);
-        column.setPreferredWidth(0);
-
-        column = columnModel.getColumn(1);
-        column.setPreferredWidth(10);
-        column = columnModel.getColumn(2);
-        column.setPreferredWidth(10);
-        column = columnModel.getColumn(3);
-        column.setPreferredWidth(10);
-        column = columnModel.getColumn(4);
-        column.setPreferredWidth(500);        
-
-		
-		jp.add(jt);
-		jp.setViewportView(jt);
-		
-	}
+	private static final long serialVersionUID = -8069838656058091382L;
+	private JTabbedPane tabPane;
+	private JPanel salePanel;
+	private JPanel upPanel;
+	private JPanel leftPanel;
+	private JPanel middlePanel;
+	private JPanel rightPanel;
+	private JButton left;
+	private JButton right;
 	
-	public Studio getStudio() {
-		int rowSel=jt.getSelectedRow();
-			
-		if(rowSel>=0){
-			Studio stud = new Studio();
-			stud.setID(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
-			stud.setName(jt.getValueAt(rowSel, 1).toString());
-			stud.setRowCount(Integer.parseInt(jt.getValueAt(rowSel, 2).toString())); // 0
-			stud.setColCount(Integer.parseInt(jt.getValueAt(rowSel, 3).toString()));
-			if (jt.getValueAt(rowSel, 4) != null)
-				stud.setIntroduction(jt.getValueAt(rowSel, 4).toString());
-			else
-				stud.setIntroduction("");
+	private PlayInfo curPlay;
+	private ScheduleInfo curSchedule;
+	private DefaultMutableTreeNode curNode;
+	private List<PlayInfo> scheduledPlay;
+	private JTree tree;
+	private JTextArea detail;
+	private Ticket[][] ticketArray;
 
-			return stud;
-		}
-		else{
-			return null;
-		}
-			
-	}
 	
-	// 创建JTable
-	public void showStudioList(List<Studio> stuList) {
-		try {
-			DefaultTableModel tabModel = (DefaultTableModel) jt.getModel();
-			tabModel.setRowCount(0);
-			
-			Iterator<Studio> itr = stuList.iterator();
-			while (itr.hasNext()) {
-				Studio stu = itr.next();
-				Object data[] = new Object[5];
-				data[0] = Integer.toString(stu.getID());
-				data[1] = stu.getName();
-				data[2] = Integer.toString(stu.getRowCount());
-				data[3] = Integer.toString(stu.getColCount());
-				data[4] = stu.getIntroduction();
-				tabModel.addRow(data);;
-			}
-			jt.invalidate();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public static void main(String[] args) {
+		new SellTicketUI().setVisible(true);;
 	}
-}
-
-public class StudioMgrUI extends MainUITmpl {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private JLabel ca1 = null; // 界面提示
-	// 用来放表格的滚动控件
-	private JScrollPane jsc;
-	// 查找的提示和输出
-	private JLabel hint;
-	private JTextField input;
-
-	// 查找，编辑和删除按钮
-	private JButton btnAdd, btnEdit, btnDel, btnQuery;
-	
-	StudioTable tms; //显示演出厅列表
-
-
-	public StudioMgrUI() {
-		super();
-	}
-
-	// To be override by the detailed business block interface
 	@Override
 	protected void initContent() {
-		Rectangle rect = contPan.getBounds();
+		tabPane = new JTabbedPane();
+		tabPane.setBounds(0, 0, 1024, 590);
 
-		ca1 = new JLabel("演出厅管理", JLabel.CENTER);
-		ca1.setBounds(0, 5, rect.width, 30);
-		ca1.setFont(new java.awt.Font("宋体", 1, 20));
-		ca1.setForeground(Color.blue);
-		contPan.add(ca1);
+		salePanel = new JPanel();
+		salePanel.setLayout(new BorderLayout());
 
-		jsc = new JScrollPane();
-		jsc.setBounds(0, 40, rect.width, rect.height - 90);
-		contPan.add(jsc);
+		
+		
+		setUpPanel();
+//		if(scheduledPlay.size()>0){
+////			setLeftPanel(scheduledPlay.get(0).getId(),scheduledPlay.get(0).getName());
+//			curPlay = scheduledPlay.get(0);
+//		}
+//		else
+//			setLeftPanel(0,"【无信息】");
+		
+		setRightPanel();
 
-		hint = new JLabel("请输入演出厅名称:", JLabel.RIGHT);
-		hint.setBounds(60, rect.height - 45, 150, 30);
-		contPan.add(hint);
+		tabPane.addTab("正在上映", salePanel);
+		tabPane.addTab("即将上映", new JLabel());
+		tabPane.addTab("全部电影", new JLabel());
+		contPan.add(tabPane);
+		contPan.validate();
+		setMiddlePanel(8, 8);
 
-		input = new JTextField();
-		input.setBounds(220, rect.height - 45, 200, 30);
-		contPan.add(input);
+	}
 
-		// 查找 ，删除和编辑的按钮，其中含有相关的事件处理！
-		btnQuery = new JButton("查找");
-		btnQuery.setBounds(440, rect.height - 45, 60, 30);
-		btnQuery.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-				btnQueryClicked();
+	private void setUpPanel() {
+		PlayService service = new PlayService();
+//		scheduledPlay = service.selectScheduledPlay("");
+		upPanel = new JPanel();
+		upPanel.setLayout(new BorderLayout());
+		left = new JButton(new ImageIcon("resource/image/left.png"));
+		upPanel.add(left, BorderLayout.WEST);
+		right = new JButton(new ImageIcon("resource/image/right.png"));
+		upPanel.add(right, BorderLayout.EAST);
+		JPanel filmPanel = new JPanel();
+		filmPanel.setLayout(new GridLayout(1, 6));
+		JButton btn1 = new JButton(new ImageIcon("resource/image/film1.jpg"));
+		btn1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(scheduledPlay.size()>0){
+//					setLeftPanel(scheduledPlay.get(0).getId(),scheduledPlay.get(0).getName());
+					curPlay = scheduledPlay.get(0);
+				}
 			}
 		});
-		contPan.add(btnQuery);
-
-		btnAdd = new JButton("添加");
-		btnAdd.setBounds(rect.width - 220, rect.height - 45, 60, 30);
-		btnAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-				btnAddClicked();
+		filmPanel.add(btn1);
+		
+		JButton btn2 = new JButton(new ImageIcon("resource/image/film2.jpg"));
+		btn2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(scheduledPlay.size()>1){
+//					setLeftPanel(scheduledPlay.get(1).getId(),scheduledPlay.get(1).getName());
+					curPlay = scheduledPlay.get(1);
+				}
 			}
 		});
-		contPan.add(btnAdd);
+		filmPanel.add(btn2);
 
-		btnEdit = new JButton("修改");
-		btnEdit.setBounds(rect.width - 150, rect.height - 45, 60, 30);
-		btnEdit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-				btnModClicked();
-			}
-		});
-		contPan.add(btnEdit);
-
-		btnDel = new JButton("删除");
-		btnDel.setBounds(rect.width - 80, rect.height - 45, 60, 30);
-		btnDel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-				btnDelClicked();
-			}
-		});
-		contPan.add(btnDel);
-		contPan.add(ca1);
-		
-		tms = new StudioTable(jsc);
-		
-		showTable();
+		filmPanel.add(new JButton(new ImageIcon("resource/image/film3.jpg")));
+		filmPanel.add(new JButton(new ImageIcon("resource/image/film1.jpg")));
+		filmPanel.add(new JButton(new ImageIcon("resource/image/film2.jpg")));
+		filmPanel.add(new JButton(new ImageIcon("resource/image/film3.jpg")));
+		upPanel.add(filmPanel, BorderLayout.CENTER);
+		salePanel.add(upPanel, BorderLayout.NORTH);
 	}
 
-	private void btnAddClicked() {
-
-		PlayAddUI addStuUI=null;
-		
-		addStuUI = new PlayAddUI();
-		addStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		addStuUI.setWindowName("添加演出厅");
-		addStuUI.toFront();
-		addStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-		addStuUI.setVisible(true);
-		if (addStuUI.getReturnStatus()) {
-			showTable();
-		}
-	}
-
-	private void btnModClicked() {
-		Studio stud = tms.getStudio();
-		if(null== stud){
-			JOptionPane.showMessageDialog(null, "请选择要修改的演出厅");
-			return; 
-		}
-		PlayEditUI modStuUI = new PlayEditUI(stud);
-		modStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		modStuUI.setWindowName("修改演出厅");
-		modStuUI.initData(stud);
-		modStuUI.toFront();
-		modStuUI.setModal(true);
-		modStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-		modStuUI.setVisible(true);
-
-		if (modStuUI.getReturnStatus()) {
-			showTable();
-		}	
-	}
-
-	private void btnDelClicked() {
-		Studio stud = tms.getStudio();
-		if(null== stud){
-			JOptionPane.showMessageDialog(null, "请选择要删除的演出厅");
-			return; 
-		}		
-		
-		int confirm = JOptionPane.showConfirmDialog(null, "确认删除所选？", "删除", JOptionPane.YES_NO_OPTION);
-		if (confirm == JOptionPane.YES_OPTION) {
-			StudioSrv stuSrv = new StudioSrv();
-			stuSrv.delete(stud.getID());
-			showTable();
-		}
-	}
-
-	private void btnQueryClicked() {
-		if (!input.getText().equals("")) {
-			//请自行补充
-
-		} else {
-			JOptionPane.showMessageDialog(null, "请输入检索条件");
-		}
-	}
-
-	private void showTable() {
-		List<Studio> stuList = new StudioSrv().FetchAll();
-		
-		tms.showStudioList(stuList);
+	private void setLeftPanel(int play_id, String play_name) {
+//		if(leftPanel==null)
+//			leftPanel = new JPanel();
+//		else
+//			leftPanel.removeAll();
+//		DefaultMutableTreeNode root = new DefaultMutableTreeNode(play_name);
+//		ScheduleService service = new ScheduleService();
+//		List<ScheduleInfo> list = service.Fetch("play_id="+play_id);
+//		if (list.size() > 0) {
+//			List<String> dates = new ArrayList<String>();
+//			for (Schedule i : list) {
+//				String s = DateFormat.getDateInstance().format(i.getSched_time());
+//				if(!dates.contains(s)){
+//					dates.add(s);
+//				}
+//			}
+//			for(String i:dates){
+//				root.add(new DefaultMutableTreeNode(i));									
+//			}
+//			for (Schedule i : list) {
+//				DefaultMutableTreeNode node = (DefaultMutableTreeNode)root.getFirstChild();
+//				for(int j=0; j<dates.size(); j++){
+//					if(node.getUserObject().toString().equals(DateFormat.getDateInstance().format(i.getSched_time()))){
+//						node.add(new DefaultMutableTreeNode(i));
+//						break;
+//					}else
+//						node = node.getNextSibling();
+//				}
+//			}
+//		}
+//		tree = new JTree(root);
+//		tree.addTreeSelectionListener(new TreeSelectionListener() {
+//			
+//		    public void valueChanged(TreeSelectionEvent e) {		    	
+//		        DefaultMutableTreeNode selectedNode=(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();  
+//		        curNode = selectedNode;
+//		        getTickets(selectedNode);
+//		    }  
+//		});  
+//		leftPanel.add(tree);
+//		salePanel.add(leftPanel, BorderLayout.WEST);
+//		leftPanel.updateUI();
 	}
 	
+	private void getTickets(DefaultMutableTreeNode node){
+        if(node!=null && node.isLeaf()){
+        	int m=0, n=0;
+        	ScheduleService scheduleService=new ScheduleService();
+        	List<ScheduleInfo>scheduleInfos=scheduleService.FetchAll();
+        	Ticket ticket=SellTicketService.getChooseInfo();
+        	ScheduleInfo schedule = null;
+        	
+        	for(int i=0;i<scheduleInfos.size();i++)
+        	{
+        		if(scheduleInfos.get(i).getSched_id()==ticket.getSchedule_id())
+        			schedule=scheduleInfos.get(i);
+        	}
+        	curSchedule = schedule;
+        	StudioSrv studioSrv=new StudioSrv();
+        	Studio studio=studioSrv.FetchId(schedule.getSched_id()).get(0);
+        	m=studio.getRowCount();
+        	n=studio.getColCount();
+        	//System.out.println(schedule.getSched_id());
+//        	TicketService ticketSrv = new TicketService();
+////        	SeatSrv seatSrv = new SeatSrv();
+//        	StudioSrv studioSrv = new StudioSrv();
+//        	List<Ticket> tickets = ticketSrv.Fetch("sched_id = "+ schedule.getSched_id());
+//        	for(Ticket t : tickets){
+//        		List<Seat> tmp = seatSrv.Fetch("seat_id = " + t.getSeatId());
+//        		if(tmp.size()>0){
+//        			t.setPlayName(curPlay.getName());
+//        			t.setSchedule(curSchedule);
+//        			t.setSeat(tmp.get(0));
+//        			if(m==0){
+//        				List<Studio> studios = studioSrv.Fetch("studio_id = " + tmp.get(0).getStudioId());
+//        				if(studios.size()>0){
+//        					m = studios.get(0).getRowCount();
+//        					n = studios.get(0).getColCount();
+//        				}
+//        			}
+//        			if(handler.isTicketSelected(t)){
+//        				t.setStatus(2);
+//        			}
+//        		}
+//        	}
+        	setMiddlePanel(8, 8); 
+        }
+	}
 
-	public static void main(String[] args) {
-		StudioMgrUI frmStuMgr = new StudioMgrUI();
-		frmStuMgr.setVisible(true);
+	private void setMiddlePanel(int m, int n) {
+		if(middlePanel==null)
+			middlePanel = new JPanel();
+		else
+			middlePanel.removeAll();
+		
+		JLabel lmainview = new JLabel();
 
+		ImageIcon selectsite = new ImageIcon("resource/image/selectsite.png");
+		lmainview.setIcon(selectsite);
+
+		JPanel sites = new JPanel();
+		GridLayout gridLayout = new GridLayout(m+1, n+1);
+		gridLayout.setHgap(8);
+		gridLayout.setVgap(3);
+		sites.setLayout(gridLayout);
+		sites.setOpaque(false); // 设置背景为透明
+		sites.setBounds(105, 120, 510, 300);
+
+		final ImageIcon siteimgwhite = new ImageIcon("resource/image/white.png");
+		final ImageIcon siteimggreen = new ImageIcon("resource/image/green.png");
+		final ImageIcon siteimgred = new ImageIcon("resource/image/red.jpg");
+
+		Action act = new AbstractAction() {
+			private static final long serialVersionUID = -144569051730123316L;
+
+			public void actionPerformed(ActionEvent e) {
+				JButton site = (JButton) e.getSource();
+				String name = site.getName();
+				String tmp[] = name.split(",");
+				int i = Integer.valueOf(tmp[0]);
+				int j = Integer.valueOf(tmp[1]);
+//				if (ticketArray[i][j].getStatus()==0) {
+//					ticketArray[i][j].setStatus(2);
+//					site.setIcon(siteimggreen);
+//					handler.addTicket(ticketArray[i][j]);
+//					detail.setText(handler.getInfo());
+//				} else if (ticketArray[i][j].getStatus()==2) {
+//					ticketArray[i][j].setStatus(0);
+//					site.setIcon(siteimgwhite);
+//					handler.removeTicket(ticketArray[i][j]);
+//					detail.setText(handler.getInfo());
+//				}
+			}
+		};
+
+		// 座位标示   -1:无座, 0:待销售   1:锁定   2:已选   9:卖出
+		int[][] seats = new int[m+1][n+1];
+//		ticketArray = new Ticket[m+1][n+1];
+		System.out.println(m+","+n);
+		for (int i = 0; i < m+1; i++) {
+			for (int j = 0; j < n+1; j++) {
+				seats[i][j] = 2;
+//				ticketArray[i][j] = null;
+			}
+		}
+		
+//		for(Ticket t : tickets){
+//			seats[t.getSeat().getRow()][t.getSeat().getColumn()] = t.getStatus();
+//			ticketArray[t.getSeat().getRow()][t.getSeat().getColumn()] = t;
+//		}
+		
+		for (int i = 0; i < m+1; i++) {
+			for (int j = 0; j < n+1; j++) {
+				if(i==0){
+					if(j==0)
+						sites.add(new JLabel("  "));
+					else
+						sites.add(new JLabel(" " + j + "座"));
+				}else if(j==0){
+					if(i>0)
+						sites.add(new JLabel(i + "排"));
+				}else{
+					
+					if (seats[i][j] == -1) {
+						sites.add(new JLabel("  "));
+					} else if (seats[i][j] == 0) {
+						JButton site = new JButton(act);
+						site.setBackground(Color.WHITE);
+						site.setIcon(siteimgwhite);
+						site.setName(i+","+j);
+						sites.add(site);
+					} else if (seats[i][j] == 2) {
+						System.out.println("chulai");
+						JButton site = new JButton(act);
+						site.setBackground(Color.WHITE);
+						site.setIcon(siteimggreen);
+						site.setName(i+","+j);
+						sites.add(site);
+					} else{
+						JButton site = new JButton();
+						site.setBackground(Color.WHITE);
+						site.setIcon(siteimgred);
+						sites.add(site);
+					}
+				}
+			}
+		}
+
+		lmainview.add(sites);
+		middlePanel.add(lmainview);
+		salePanel.add(middlePanel, BorderLayout.CENTER);
+		middlePanel.updateUI();
+	}
+
+	private void setRightPanel() {
+		rightPanel = new JPanel();
+		rightPanel.setLayout(new BorderLayout());
+		detail = new JTextArea("");
+		JScrollPane scroll = new JScrollPane(detail);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); 
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		rightPanel.add(scroll, BorderLayout.CENTER);
+		JPanel buttons = new JPanel();
+		JButton sale = new JButton("出票");
+		sale.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+//				if(handler.doSale()){
+//					detail.setText("");					
+//					getTickets(curNode);
+//					JOptionPane.showMessageDialog(null, "出票成功。");
+//				}else{
+//					JOptionPane.showMessageDialog(null, "出现错误，请重试。");					
+//				}
+			}
+		});
+		JButton clear = new JButton("清除");
+		clear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+//				handler.clearSale();
+//				detail.setText("");
+//				getTickets(curNode);
+			}
+		});
+		buttons.add(sale);
+		buttons.add(clear);
+		rightPanel.add(buttons, BorderLayout.SOUTH);
+		salePanel.add(rightPanel, BorderLayout.EAST);
 	}
 }

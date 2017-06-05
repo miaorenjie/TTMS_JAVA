@@ -6,6 +6,7 @@ import xupt.se.ttms.idao.DAOFactory;
 import xupt.se.ttms.idao.iEmployeeDao;
 import xupt.se.ttms.idao.iStudioDAO;
 import xupt.se.ttms.model.Employee;
+import xupt.se.ttms.model.Order;
 import xupt.se.ttms.model.Studio;
 
 public class EmployeeService {
@@ -28,5 +29,9 @@ public class EmployeeService {
 	
 	public List<Employee> FetchAll(){
 		return empDao.select("");		
+	}
+	public List<Employee> FetchId(int id){
+		
+		return empDao.select(Employee.ID+" = "+id);		
 	}
 }

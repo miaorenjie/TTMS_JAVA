@@ -30,5 +30,10 @@ public class TicketService {
 	public List<Ticket> FetchAll(){
 		return ticketDao.select("");		
 	}
+	
+	public List<Ticket> FetchId(int id){
+		
+		return ticketDao.select(Ticket.TICKET_ID+" = "+id);		
+	}
 }
 

@@ -7,6 +7,7 @@ import xupt.se.ttms.idao.iOrderDao;
 import xupt.se.ttms.idao.iPlayInfoDao;
 import xupt.se.ttms.model.Order;
 import xupt.se.ttms.model.PlayInfo;
+import xupt.se.ttms.model.Ticket;
 
 public class PlayService {
 	private iPlayInfoDao playInfoDao=DAOFactory.creatPlayInfoDao();
@@ -28,5 +29,9 @@ public class PlayService {
 	
 	public List<PlayInfo> FetchAll(){
 		return playInfoDao.select("");		
+	}
+	public List<PlayInfo> FetchId(int id){
+		
+		return playInfoDao.select(PlayInfo.ID+" = "+id);		
 	}
 }

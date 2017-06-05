@@ -4,23 +4,6 @@
 /*==============================================================*/
 
 
-drop table if exists data_dict;
-
-drop table if exists employee;
-
-drop table if exists play;
-
-drop table if exists sale;
-
-drop table if exists sale_item;
-
-drop table if exists schedule;
-
-drop table if exists seat;
-
-drop table if exists studio;
-
-drop table if exists ticket;
 
 /*==============================================================*/
 /* Table: data_dict                                             */

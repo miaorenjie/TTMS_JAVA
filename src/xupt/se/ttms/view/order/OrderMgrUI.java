@@ -24,21 +24,29 @@ import java.util.List;
 import java.util.Iterator;
 
 import xupt.se.ttms.model.Employee;
+import xupt.se.ttms.model.Order;
 import xupt.se.ttms.model.PlayInfo;
+import xupt.se.ttms.model.ScheduleInfo;
+import xupt.se.ttms.model.SeatInfo;
 import xupt.se.ttms.model.Studio;
+import xupt.se.ttms.model.Ticket;
 import xupt.se.ttms.service.EmployeeService;
+import xupt.se.ttms.service.OrderService;
 import xupt.se.ttms.service.PlayService;
+import xupt.se.ttms.service.ScheduleService;
+import xupt.se.ttms.service.SeatService;
 import xupt.se.ttms.service.StudioSrv;
+import xupt.se.ttms.service.TicketService;
 import xupt.se.ttms.view.tmpl.*;
 
-class PlayTable {
+class OrderTable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private JTable jt;
 
-	public PlayTable(JScrollPane jp) {
+	public OrderTable(JScrollPane jp) {
 		
 		DefaultTableModel tabModel=new DefaultTableModel(){
 			private static final long serialVersionUID = 1L;
@@ -48,23 +56,24 @@ class PlayTable {
 				return false;              
 			};
 		};
-//		private String play_name;
-//		private String play_director;
-//		private String play_introduce;
-//	   
-//		private String play_protagonist;
-//		private float play_price;
-//		private String play_status;
-//		private String play_type;
-//		private int play_lenth;
+//		private int order_id;
+//		private int employeeId;
+//		private int ticket_id;
+//		private float order_price;
+//		private String order_date;
+//		private float sale_payment;
+//		private float sale_change;
+//		private int ticket_id;
+//		private int play_id;
+//		private String seat_id;
+//		private int schedule_id;
+//		private String ticket_date;
 		tabModel.addColumn("id");
-		tabModel.addColumn("剧目名称");
-		tabModel.addColumn("导演");
-		tabModel.addColumn("主演");
-		tabModel.addColumn("上映状态");
-		tabModel.addColumn("影片类型");
-		tabModel.addColumn("时长");
-		tabModel.addColumn("简介");
+		tabModel.addColumn("售票员");
+		tabModel.addColumn("电影名称");
+		tabModel.addColumn("影厅名称");
+		tabModel.addColumn("座位号");
+		tabModel.addColumn("时间");
 		//初始化列明
 		jt=new JTable(tabModel);	
 		
@@ -87,13 +96,7 @@ class PlayTable {
         column = columnModel.getColumn(4);
         column.setPreferredWidth(20);        
         column = columnModel.getColumn(5);
-        column.setPreferredWidth(20);  
-
-        column = columnModel.getColumn(6);
-        column.setPreferredWidth(20);  
-        
-        column = columnModel.getColumn(7);
-        column.setPreferredWidth(100);  
+        column.setPreferredWidth(20);   
 
 		
 		jp.add(jt);
@@ -101,7 +104,7 @@ class PlayTable {
 		
 	}
 	
-	public PlayInfo getPlay() {
+	public Order getOrder() {
 		int rowSel=jt.getSelectedRow();
 //		tabModel.addColumn("id");
 //		tabModel.addColumn("剧目名称");
@@ -112,15 +115,16 @@ class PlayTable {
 //		tabModel.addColumn("时长");
 //		tabModel.addColumn("简介");
 		if(rowSel>=0){
-			PlayInfo play = new PlayInfo();
-			play.setPlay_id(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
-			play.setPlay_name(jt.getValueAt(rowSel, 1).toString());
-			play.setPlay_director(jt.getValueAt(rowSel, 2).toString());
-			play.setPlay_protagonist(jt.getValueAt(rowSel, 3).toString());
-			play.setPlay_status(jt.getValueAt(rowSel, 4).toString());
-			play.setPlay_type(jt.getValueAt(rowSel, 5).toString());
-			play.setPlay_lenth(Integer.parseInt(jt.getValueAt(rowSel, 6).toString()));
-			play.setPlay_introduce(jt.getValueAt(rowSel, 7).toString());
+			Order order = new Order();
+			order.setOrder_id(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
+//			play.setPlay_id(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
+//			play.setPlay_name(jt.getValueAt(rowSel, 1).toString());
+//			play.setPlay_director(jt.getValueAt(rowSel, 2).toString());
+//			play.setPlay_protagonist(jt.getValueAt(rowSel, 3).toString());
+//			play.setPlay_status(jt.getValueAt(rowSel, 4).toString());
+//			play.setPlay_type(jt.getValueAt(rowSel, 5).toString());
+//			play.setPlay_lenth(Integer.parseInt(jt.getValueAt(rowSel, 6).toString()));
+//			play.setPlay_introduce(jt.getValueAt(rowSel, 7).toString());
 //			emp.setEmpId(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
 //			emp.setEmpName(jt.getValueAt(rowSel, 1).toString());
 //			emp.setEmpTel(jt.getValueAt(rowSel, 2).toString());
@@ -130,7 +134,7 @@ class PlayTable {
 //			emp.setEmpUserName(jt.getValueAt(rowSel, 6).toString());
 //			emp.setEmpPassword(jt.getValueAt(rowSel, 7).toString());
 
-			return play;
+			return order;
 		}
 		else{
 			return null;
@@ -139,31 +143,70 @@ class PlayTable {
 	}
 	
 	// 创建JTable
-	public void showPlayList(List<PlayInfo> playInfos) {
+	public void showOrderList(List<Order> orders) {
 		try {
 			DefaultTableModel tabModel = (DefaultTableModel) jt.getModel();
 			tabModel.setRowCount(0);
 
-//			tabModel.addColumn("id");
-//			tabModel.addColumn("剧目名称");
-//			tabModel.addColumn("导演");
-//			tabModel.addColumn("主演");
-//			tabModel.addColumn("上映状态");
-//			tabModel.addColumn("影片类型");
-//			tabModel.addColumn("时长");
-//			tabModel.addColumn("简介");
-			Iterator<PlayInfo> itr = playInfos.iterator();
+
+			Iterator<Order> itr = orders.iterator();
 			while (itr.hasNext()) {
-				PlayInfo playInfo = itr.next();
-				Object data[] = new Object[8];
-				data[0] = playInfo.getPlay_id()+"";
-				data[1] = playInfo.getPlay_name();
-				data[2] = playInfo.getPlay_director();
-				data[3] = playInfo.getPlay_protagonist();
-				data[4] = playInfo.getPlay_status();
-				data[5]=playInfo.getPlay_type();
-				data[6]=playInfo.getPlay_lenth();
-				data[7]=playInfo.getPlay_introduce();
+			
+				Order order = itr.next();
+				String ticketIDs=order.getTicket_id();
+				String [] ticketId=ticketIDs.split(" ");
+				String seatInfo="";
+				EmployeeService employeeService=new EmployeeService();
+				List<Employee>employees=employeeService.FetchId(order.getEmployeeId());
+				Employee employee=employees.get(0);
+				TicketService ticketService=new TicketService();
+				SeatService seatService=new SeatService();
+				int studioId;
+				int playId = 0;
+				int scheduleId = 0;
+				for(int i=0;i<ticketId.length;i++)
+				{
+					
+					List<Ticket>tickets=ticketService.FetchId(Integer.parseInt(ticketId[i]));
+					Ticket ticket=tickets.get(0);
+					
+					
+					List<SeatInfo> seat=seatService.FetchId(ticket.getSeat_id());
+					SeatInfo realSeat=seat.get(0);
+					seatInfo+=(realSeat.getSeat_row()+"排"+realSeat.getSeat_column()+"座 ");
+					studioId=realSeat.getStudio_id();
+					playId=ticket.getPlay_id();
+					scheduleId=ticket.getSchedule_id();
+				}
+				
+				
+				PlayService playService=new PlayService();
+				List<PlayInfo>playInfos=playService.FetchId(playId);
+				PlayInfo playInfo=playInfos.get(0);
+				
+				ScheduleService scheduleService=new ScheduleService();
+				List<ScheduleInfo>scheduleInfos=scheduleService.FetchId(scheduleId);
+				ScheduleInfo scheduleInfo=scheduleInfos.get(0);
+				
+				StudioSrv studioSrv=new StudioSrv();
+				List<Studio>studios=studioSrv.FetchId(scheduleInfo.getStudio_id());
+				Studio studio=studios.get(0);
+				
+				Object data[] = new Object[6];
+//				tabModel.addColumn("id");
+//				tabModel.addColumn("售票员");
+//				tabModel.addColumn("电影名称");
+//				tabModel.addColumn("影厅名称");
+//				tabModel.addColumn("座位号");
+//				tabModel.addColumn("时间");
+				data[0] = order.getOrder_id()+"";
+				data[1] = employee.getEmpName();
+				data[2] = playInfo.getPlay_name();
+				data[3] = studio.getName();
+				data[4] = seatInfo;
+				data[5]=scheduleInfo.getSched_time();
+//				data[6]=playInfo.getPlay_lenth();
+//				data[7]=playInfo.getPlay_introduce();
 				tabModel.addRow(data);;
 			}
 			jt.invalidate();
@@ -174,7 +217,7 @@ class PlayTable {
 	}
 }
 
-public class PlayMgrUI extends MainUITmpl {
+public class OrderMgrUI extends MainUITmpl {
 	/**
 	 * 
 	 */
@@ -189,10 +232,10 @@ public class PlayMgrUI extends MainUITmpl {
 	// 查找，编辑和删除按钮
 	private JButton btnAdd, btnEdit, btnDel, btnQuery;
 	
-	PlayTable tms; //显示演出厅列表
+	OrderTable tms; //显示演出厅列表
 
 
-	public PlayMgrUI() {
+	public OrderMgrUI() {
 		super();
 	}
 
@@ -233,7 +276,7 @@ public class PlayMgrUI extends MainUITmpl {
 		btnAdd.setBounds(rect.width - 220, rect.height - 45, 60, 30);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent Event) {
-				btnAddClicked();
+//				btnAddClicked();
 			}
 		});
 		contPan.add(btnAdd);
@@ -242,7 +285,7 @@ public class PlayMgrUI extends MainUITmpl {
 		btnEdit.setBounds(rect.width - 150, rect.height - 45, 60, 30);
 		btnEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent Event) {
-				btnModClicked();
+//				btnModClicked();
 			}
 		});
 		contPan.add(btnEdit);
@@ -257,48 +300,48 @@ public class PlayMgrUI extends MainUITmpl {
 		contPan.add(btnDel);
 		contPan.add(ca1);
 		
-		tms = new PlayTable(jsc);
+		tms = new OrderTable(jsc);
 		
 		showTable();
 	}
 
-	private void btnAddClicked() {
-
-		PlayAddUI addStuUI=null;
-		
-		addStuUI = new PlayAddUI();
-		addStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		addStuUI.setWindowName("添加剧目");
-		addStuUI.toFront();
-		addStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-		addStuUI.setVisible(true);
-		if (addStuUI.getReturnStatus()) {
-			showTable();
-		}
-	}
-
-	private void btnModClicked() {
-		PlayInfo emp = tms.getPlay();
-		if(null== emp){
-			JOptionPane.showMessageDialog(null, "请选择要修改的演出厅");
-			return; 
-		}
-		PlayEditUI modStuUI = new PlayEditUI(emp);
-		modStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		modStuUI.setWindowName("修改员工");
-		modStuUI.initData(emp);
-		modStuUI.toFront();
-		modStuUI.setModal(true);
-		modStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-		modStuUI.setVisible(true);
-
-		if (modStuUI.getReturnStatus()) {
-			showTable();
-		}	
-	}
+//	private void btnAddClicked() {
+//
+//		PlayAddUI addStuUI=null;
+//		
+//		addStuUI = new PlayAddUI();
+//		addStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//		addStuUI.setWindowName("添加剧目");
+//		addStuUI.toFront();
+//		addStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
+//		addStuUI.setVisible(true);
+//		if (addStuUI.getReturnStatus()) {
+//			showTable();
+//		}
+//	}
+//
+//	private void btnModClicked() {
+//		PlayInfo emp = tms.getPlay();
+//		if(null== emp){
+//			JOptionPane.showMessageDialog(null, "请选择要修改的演出厅");
+//			return; 
+//		}
+//		PlayEditUI modStuUI = new PlayEditUI(emp);
+//		modStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//		modStuUI.setWindowName("修改员工");
+//		modStuUI.initData(emp);
+//		modStuUI.toFront();
+//		modStuUI.setModal(true);
+//		modStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
+//		modStuUI.setVisible(true);
+//
+//		if (modStuUI.getReturnStatus()) {
+//			showTable();
+//		}	
+//	}
 
 	private void btnDelClicked() {
-		PlayInfo play = tms.getPlay();
+		Order play = tms.getOrder();
 		if(null== play){
 			JOptionPane.showMessageDialog(null, "请选择要删除的员工");
 			return; 
@@ -307,7 +350,7 @@ public class PlayMgrUI extends MainUITmpl {
 		int confirm = JOptionPane.showConfirmDialog(null, "确认删除所选？", "删除", JOptionPane.YES_NO_OPTION);
 		if (confirm == JOptionPane.YES_OPTION) {
 			PlayService empService = new PlayService();
-			empService.delete(play.getPlay_id());
+			empService.delete(play.getOrder_id());
 			showTable();
 		}
 	}
@@ -322,14 +365,14 @@ public class PlayMgrUI extends MainUITmpl {
 	}
 
 	private void showTable() {
-		List<PlayInfo> playInfos = new PlayService().FetchAll();
+		List<Order> playInfos = new OrderService().FetchAll();
 		
-		tms.showPlayList(playInfos);
+		tms.showOrderList(playInfos);
 	}
 	
 
 	public static void main(String[] args) {
-		PlayMgrUI frmStuMgr = new PlayMgrUI();
+		OrderMgrUI frmStuMgr = new OrderMgrUI();
 		frmStuMgr.setVisible(true);
 
 	}

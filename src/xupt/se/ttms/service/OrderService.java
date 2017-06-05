@@ -7,6 +7,7 @@ import xupt.se.ttms.idao.iEmployeeDao;
 import xupt.se.ttms.idao.iOrderDao;
 import xupt.se.ttms.model.Employee;
 import xupt.se.ttms.model.Order;
+import xupt.se.ttms.model.PlayInfo;
 
 public class OrderService {
 	private iOrderDao orderDao=DAOFactory.creatOrderDao();
@@ -28,5 +29,9 @@ public class OrderService {
 	
 	public List<Order> FetchAll(){
 		return orderDao.select("");		
+	}
+	public List<Order> FetchId(int id){
+		
+		return orderDao.select(Order.ORDER_ID+" = "+id);		
 	}
 }

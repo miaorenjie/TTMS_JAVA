@@ -29,4 +29,9 @@ public class SeatService {
 	public List<SeatInfo> FetchAll(){
 		return seatDao.select("");		
 	}
+	
+	public List<SeatInfo> FetchId(int id){
+		
+		return seatDao.select(SeatInfo.SEAT_ID+" = "+id);		
+	}
 }

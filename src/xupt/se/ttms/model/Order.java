@@ -6,7 +6,7 @@ public class Order implements Serializable{
 	
 	private int order_id;
 	private int employeeId;
-	private int ticket_id;
+	private String ticket_id;
 	private float order_price;
 	private String order_date;
 	private float sale_payment;
@@ -46,13 +46,14 @@ public class Order implements Serializable{
 		this.order_id = order_id;
 	}
 	
-	public int getTicket_id() {
+	
+	
+	public String getTicket_id() {
 		return ticket_id;
 	}
-	public void setTicket_id(int ticket_id) {
+	public void setTicket_id(String ticket_id) {
 		this.ticket_id = ticket_id;
 	}
-	
 	public float getOrder_price() {
 		return order_price;
 	}

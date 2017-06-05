@@ -4,7 +4,7 @@ public class Ticket {
 	
 	private int ticket_id;
 	private int play_id;
-	private String seat_id;
+	private int seat_id;
 	private int schedule_id;
 	private String ticket_date;
 	
@@ -34,10 +34,11 @@ public class Ticket {
 		this.play_id = play_id;
 	}
 	
-	public String getSeat_id() {
+	
+	public int getSeat_id() {
 		return seat_id;
 	}
-	public void setSeat_id(String seat_id) {
+	public void setSeat_id(int seat_id) {
 		this.seat_id = seat_id;
 	}
 	public String getTicket_date() {

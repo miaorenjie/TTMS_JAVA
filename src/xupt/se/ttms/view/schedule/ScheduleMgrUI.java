@@ -23,18 +23,22 @@ import javax.swing.table.TableColumnModel;
 import java.util.List;
 import java.util.Iterator;
 
+import xupt.se.ttms.model.PlayInfo;
+import xupt.se.ttms.model.ScheduleInfo;
 import xupt.se.ttms.model.Studio;
+import xupt.se.ttms.service.PlayService;
+import xupt.se.ttms.service.ScheduleService;
 import xupt.se.ttms.service.StudioSrv;
 import xupt.se.ttms.view.tmpl.*;
 
-class StudioTable {
+class ScheduleTable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private JTable jt;
 
-	public StudioTable(JScrollPane jp) {
+	public ScheduleTable(JScrollPane jp) {
 		
 		DefaultTableModel tabModel=new DefaultTableModel(){
 			private static final long serialVersionUID = 1L;
@@ -45,10 +49,10 @@ class StudioTable {
 			};
 		};
 		tabModel.addColumn("id");
-		tabModel.addColumn("name");
-		tabModel.addColumn("row");
-		tabModel.addColumn("column");
-		tabModel.addColumn("desciption");
+		tabModel.addColumn("电影名");
+		tabModel.addColumn("演出厅名");
+		tabModel.addColumn("上映时间");
+		tabModel.addColumn("价格");
 		//初始化列明
 		jt=new JTable(tabModel);	
 		
@@ -77,20 +81,14 @@ class StudioTable {
 		
 	}
 	
-	public Studio getStudio() {
+	public ScheduleInfo getScheduleInfo() {
 		int rowSel=jt.getSelectedRow();
 			
 		if(rowSel>=0){
-			Studio stud = new Studio();
-			stud.setID(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
-			stud.setName(jt.getValueAt(rowSel, 1).toString());
-			stud.setRowCount(Integer.parseInt(jt.getValueAt(rowSel, 2).toString())); // 0
-			stud.setColCount(Integer.parseInt(jt.getValueAt(rowSel, 3).toString()));
-			if (jt.getValueAt(rowSel, 4) != null)
-				stud.setIntroduction(jt.getValueAt(rowSel, 4).toString());
-			else
-				stud.setIntroduction("");
-
+			ScheduleInfo stud = new ScheduleInfo();
+			stud.setSched_id(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
+			stud.setSched_time(jt.getValueAt(rowSel, 3).toString());
+			stud.setSchedule_price(Float.parseFloat(jt.getValueAt(rowSel, 4).toString()));
 			return stud;
 		}
 		else{
@@ -100,20 +98,28 @@ class StudioTable {
 	}
 	
 	// 创建JTable
-	public void showStudioList(List<Studio> stuList) {
+	public void showScheduleList(List<ScheduleInfo> scheduleInfos) {
 		try {
 			DefaultTableModel tabModel = (DefaultTableModel) jt.getModel();
 			tabModel.setRowCount(0);
 			
-			Iterator<Studio> itr = stuList.iterator();
+			Iterator<ScheduleInfo> itr = scheduleInfos.iterator();
 			while (itr.hasNext()) {
-				Studio stu = itr.next();
+				ScheduleInfo stu = itr.next();
 				Object data[] = new Object[5];
-				data[0] = Integer.toString(stu.getID());
-				data[1] = stu.getName();
-				data[2] = Integer.toString(stu.getRowCount());
-				data[3] = Integer.toString(stu.getColCount());
-				data[4] = stu.getIntroduction();
+				
+				StudioSrv studioSrv=new StudioSrv();
+				System.out.println(stu.getStudio_id()+"鹰眼");
+				List<Studio>studio=studioSrv.FetchId(stu.getStudio_id());
+		
+				PlayService playService=new PlayService();
+				List<PlayInfo>play=playService.FetchId(stu.getPlay_id());
+				
+				data[0] = Integer.toString(stu.getSched_id());
+				data[1] = play.get(0).getPlay_name();
+				data[2] = studio.get(0).getName();
+				data[3] = stu.getSched_time();
+				data[4] = stu.getSchedule_price()+"";
 				tabModel.addRow(data);;
 			}
 			jt.invalidate();
@@ -139,7 +145,7 @@ public class ScheduleMgrUI extends MainUITmpl {
 	// 查找，编辑和删除按钮
 	private JButton btnAdd, btnEdit, btnDel, btnQuery;
 	
-	StudioTable tms; //显示演出厅列表
+	ScheduleTable tms; //显示演出厅列表
 
 
 	public ScheduleMgrUI() {
@@ -207,7 +213,7 @@ public class ScheduleMgrUI extends MainUITmpl {
 		contPan.add(btnDel);
 		contPan.add(ca1);
 		
-		tms = new StudioTable(jsc);
+		tms = new ScheduleTable(jsc);
 		
 		showTable();
 	}
@@ -215,10 +221,25 @@ public class ScheduleMgrUI extends MainUITmpl {
 	private void btnAddClicked() {
 
 		ScheduleAddUI addStuUI=null;
+		StudioSrv studioSrv=new StudioSrv();
+		List<Studio>studios=studioSrv.FetchAll();
+		String []studioName=new String[studios.size()];
+		for(int i=0;i<studios.size();i++)
+			studioName[i]=studios.get(i).getName();
+		System.out.println(studios.size()+"..");
+		
+		PlayService playService=new PlayService();
+		List<PlayInfo>playInfos=playService.FetchAll();
+		String []playName=new String[playInfos.size()];
+		for(int i=0;i<playInfos.size();i++)
+			playName[i]=playInfos.get(i).getPlay_name();
 		
 		addStuUI = new ScheduleAddUI();
 		addStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		addStuUI.setWindowName("添加演出厅");
+		addStuUI.setPlayList(playName);
+		addStuUI.setStudioList(studioName);
+		System.out.println(studioName.length+"--");
+		addStuUI.setWindowName("添加演出计划");
 		addStuUI.toFront();
 		addStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
 		addStuUI.setVisible(true);
@@ -228,15 +249,31 @@ public class ScheduleMgrUI extends MainUITmpl {
 	}
 
 	private void btnModClicked() {
-		Studio stud = tms.getStudio();
-		if(null== stud){
+		ScheduleInfo scheduleInfo = tms.getScheduleInfo();
+		if(null== scheduleInfo){
 			JOptionPane.showMessageDialog(null, "请选择要修改的演出厅");
 			return; 
 		}
-		ScheduleEditUI modStuUI = new ScheduleEditUI(stud);
+		
+		StudioSrv studioSrv=new StudioSrv();
+		List<Studio>studios=studioSrv.FetchAll();
+		String []studioName=new String[studios.size()];
+		for(int i=0;i<studios.size();i++)
+			studioName[i]=studios.get(i).getName();
+		System.out.println(studios.size()+"..");
+		
+		PlayService playService=new PlayService();
+		List<PlayInfo>playInfos=playService.FetchAll();
+		String []playName=new String[playInfos.size()];
+		for(int i=0;i<playInfos.size();i++)
+			playName[i]=playInfos.get(i).getPlay_name();
+		
+		ScheduleEditUI modStuUI = new ScheduleEditUI(scheduleInfo);
 		modStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		modStuUI.setWindowName("修改演出厅");
-		modStuUI.initData(stud);
+		modStuUI.initData(scheduleInfo);
+		modStuUI.setPlayList(playName);
+		modStuUI.setStudioList(studioName);
 		modStuUI.toFront();
 		modStuUI.setModal(true);
 		modStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
@@ -248,18 +285,18 @@ public class ScheduleMgrUI extends MainUITmpl {
 	}
 
 	private void btnDelClicked() {
-		Studio stud = tms.getStudio();
-		if(null== stud){
-			JOptionPane.showMessageDialog(null, "请选择要删除的演出厅");
-			return; 
-		}		
-		
-		int confirm = JOptionPane.showConfirmDialog(null, "确认删除所选？", "删除", JOptionPane.YES_NO_OPTION);
-		if (confirm == JOptionPane.YES_OPTION) {
-			StudioSrv stuSrv = new StudioSrv();
-			stuSrv.delete(stud.getID());
-			showTable();
-		}
+//		Studio stud = tms.getStudio();
+//		if(null== stud){
+//			JOptionPane.showMessageDialog(null, "请选择要删除的演出厅");
+//			return; 
+//		}		
+//		
+//		int confirm = JOptionPane.showConfirmDialog(null, "确认删除所选？", "删除", JOptionPane.YES_NO_OPTION);
+//		if (confirm == JOptionPane.YES_OPTION) {
+//			StudioSrv stuSrv = new StudioSrv();
+//			stuSrv.delete(stud.getID());
+//			showTable();
+//		}
 	}
 
 	private void btnQueryClicked() {
@@ -272,9 +309,9 @@ public class ScheduleMgrUI extends MainUITmpl {
 	}
 
 	private void showTable() {
-		List<Studio> stuList = new StudioSrv().FetchAll();
+		List<ScheduleInfo> stuList = new ScheduleService().FetchAll();
 		
-		tms.showStudioList(stuList);
+		tms.showScheduleList(stuList);
 	}
 	
 

@@ -134,7 +134,7 @@ public class OrderDao implements iOrderDao{
 					order.setEmployeeId(rst.getInt(Order.EMPLOYEE_ID));
 					order.setSale_change(rst.getFloat(Order.SALE_CHANGE));
 					order.setSale_payment(rst.getFloat(Order.SALE_PAYMENT));
-					order.setTicket_id(rst.getInt(Order.TICKET_ID));
+					order.setTicket_id(rst.getString(Order.TICKET_ID));
 					orders.add(order);
 				}
 			}
@@ -149,5 +149,4 @@ public class OrderDao implements iOrderDao{
 		
 		return orders;
 	}
-
 }
