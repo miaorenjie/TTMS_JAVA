@@ -1,4 +1,4 @@
-/*==============================================================*/
+ï»¿/*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
 /* Created on:     2016/5/16 15:40:40                           */
 /*==============================================================*/
@@ -24,11 +24,13 @@ create table data_dict
 create table employee
 (
    emp_id               int not null auto_increment,
-   emp_no               char(20) not null,
    emp_name             varchar(100) not null,
    emp_tel_num          char(20),
    emp_addr             varchar(200),
    emp_email            varchar(100),
+   emp_passWord         CHAR(20)ï¼Œ
+   emp_userName         CHAR(20)ï¼Œ
+   emp_type             CHAR(20)ï¼Œ
    primary key (emp_id)
 );
 
@@ -42,13 +44,13 @@ create table play
    play_lang_id         int,
    play_name            varchar(200),
    play_introduction    varchar(2000),
-   play_image           longblob,
-   	int,
+   play_image           LONGBLOBï¼Œ
+   play_length          INT(11)ï¼Œ
+   play_director        CHAR(20)ï¼Œ
    play_ticket_price    numeric(10,2),
-   play_status          smallint comment 'È¡Öµº¬Òå£º
-            0£º´ý°²ÅÅÑÝ³ö
-            1£ºÒÑ°²ÅÅÑÝ³ö
-            -1£ºÏÂÏß',
+   play_status          smallint commentï¼Œ
+   play_type            CHAR(20)ï¼Œ
+
    primary key (play_id)
 );
 
@@ -62,12 +64,9 @@ create table sale
    sale_time            datetime,
    sale_payment         decimal(10,2),
    sale_change          numeric(10,2),
-   sale_type            smallint comment 'Àà±ðÈ¡Öµº¬Òå£º
-            1£ºÏúÊÛµ¥
-            -1£ºÍË¿îµ¥',
-   sale_status          smallint comment 'ÏúÊÛµ¥×´Ì¬ÈçÏÂ£º
-            0£º´ú¸¶¿î
-            1£ºÒÑ¸¶¿î',
+   ticket_id            CHAR(200)ï¼Œ
+   order_price          floatï¼Œ
+
    primary key (sale_ID)
 );
 
@@ -105,6 +104,8 @@ create table seat
    studio_id            int,
    seat_row             int,
    seat_column          int,
+   movie_id             int,
+   schedule_id          int,
    primary key (seat_id)
 );
 
@@ -128,13 +129,11 @@ create table ticket
 (
    ticket_id            bigint not null auto_increment,
    seat_id              int,
-   sched_id             int,
+   schedule_id          int,
+   play_id              int,
    ticket_price         numeric(10,2),
-   ticket_status        smallint comment 'º¬ÒåÈçÏÂ£º
-            0£º´ýÏúÊÛ
-            1£ºËø¶¨
-            9£ºÂô³ö',
-   ticket_locked_time   datetime,
+   ticket_status        smallint comment ï¼Œ
+   ticket_date          VARCHAR(45)ï¼Œ
    primary key (ticket_id)
 );
 

@@ -74,6 +74,10 @@ class OrderTable {
 		tabModel.addColumn("影厅名称");
 		tabModel.addColumn("座位号");
 		tabModel.addColumn("时间");
+		tabModel.addColumn("支付金额");
+		tabModel.addColumn("找零");
+		tabModel.addColumn("订单金额");
+		tabModel.addColumn("订单时间");
 		//初始化列明
 		jt=new JTable(tabModel);	
 		
@@ -97,7 +101,14 @@ class OrderTable {
         column.setPreferredWidth(20);        
         column = columnModel.getColumn(5);
         column.setPreferredWidth(20);   
-
+        column = columnModel.getColumn(6);
+        column.setPreferredWidth(20); 
+        column = columnModel.getColumn(7);
+        column.setPreferredWidth(20); 
+        column = columnModel.getColumn(8);
+        column.setPreferredWidth(20); 
+        column = columnModel.getColumn(9);
+        column.setPreferredWidth(50); 
 		
 		jp.add(jt);
 		jp.setViewportView(jt);
@@ -154,7 +165,7 @@ class OrderTable {
 			
 				Order order = itr.next();
 				String ticketIDs=order.getTicket_id();
-				String [] ticketId=ticketIDs.split(" ");
+				String [] ticketId=ticketIDs.split(",");
 				String seatInfo="";
 				EmployeeService employeeService=new EmployeeService();
 				List<Employee>employees=employeeService.FetchId(order.getEmployeeId());
@@ -192,7 +203,7 @@ class OrderTable {
 				List<Studio>studios=studioSrv.FetchId(scheduleInfo.getStudio_id());
 				Studio studio=studios.get(0);
 				
-				Object data[] = new Object[6];
+				Object data[] = new Object[10];
 //				tabModel.addColumn("id");
 //				tabModel.addColumn("售票员");
 //				tabModel.addColumn("电影名称");
@@ -205,8 +216,11 @@ class OrderTable {
 				data[3] = studio.getName();
 				data[4] = seatInfo;
 				data[5]=scheduleInfo.getSched_time();
-//				data[6]=playInfo.getPlay_lenth();
-//				data[7]=playInfo.getPlay_introduce();
+				Order realOrder=new OrderService().FetchId(order.getOrder_id()).get(0);
+				data[6]=realOrder.getSale_payment()+"";
+				data[7]=realOrder.getSale_change()+"";
+				data[8]=realOrder.getOrder_price()+"";
+				data[9]=realOrder.getOrder_date();
 				tabModel.addRow(data);;
 			}
 			jt.invalidate();
@@ -244,7 +258,7 @@ public class OrderMgrUI extends MainUITmpl {
 	protected void initContent() {
 		Rectangle rect = contPan.getBounds();
 
-		ca1 = new JLabel("剧目管理", JLabel.CENTER);
+		ca1 = new JLabel("订单管理", JLabel.CENTER);
 		ca1.setBounds(0, 5, rect.width, 30);
 		ca1.setFont(new java.awt.Font("宋体", 1, 20));
 		ca1.setForeground(Color.blue);
@@ -254,43 +268,10 @@ public class OrderMgrUI extends MainUITmpl {
 		jsc.setBounds(0, 40, rect.width, rect.height - 90);
 		contPan.add(jsc);
 
-		hint = new JLabel("请输入剧目名字:", JLabel.RIGHT);
-		hint.setBounds(60, rect.height - 45, 150, 30);
-		contPan.add(hint);
+		
 
-		input = new JTextField();
-		input.setBounds(220, rect.height - 45, 200, 30);
-		contPan.add(input);
 
-		// 查找 ，删除和编辑的按钮，其中含有相关的事件处理！
-		btnQuery = new JButton("查找");
-		btnQuery.setBounds(440, rect.height - 45, 60, 30);
-		btnQuery.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-				btnQueryClicked();
-			}
-		});
-		contPan.add(btnQuery);
-
-		btnAdd = new JButton("添加");
-		btnAdd.setBounds(rect.width - 220, rect.height - 45, 60, 30);
-		btnAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-//				btnAddClicked();
-			}
-		});
-		contPan.add(btnAdd);
-
-		btnEdit = new JButton("修改");
-		btnEdit.setBounds(rect.width - 150, rect.height - 45, 60, 30);
-		btnEdit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-//				btnModClicked();
-			}
-		});
-		contPan.add(btnEdit);
-
-		btnDel = new JButton("删除");
+		btnDel = new JButton("退票");
 		btnDel.setBounds(rect.width - 80, rect.height - 45, 60, 30);
 		btnDel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent Event) {
@@ -341,16 +322,28 @@ public class OrderMgrUI extends MainUITmpl {
 //	}
 
 	private void btnDelClicked() {
-		Order play = tms.getOrder();
-		if(null== play){
-			JOptionPane.showMessageDialog(null, "请选择要删除的员工");
+		Order order = tms.getOrder();
+		if(null== order){
+			JOptionPane.showMessageDialog(null, "请选择要退的订单");
 			return; 
 		}		
 		
-		int confirm = JOptionPane.showConfirmDialog(null, "确认删除所选？", "删除", JOptionPane.YES_NO_OPTION);
+		int confirm = JOptionPane.showConfirmDialog(null, "确认退票？", "删除", JOptionPane.YES_NO_OPTION);
 		if (confirm == JOptionPane.YES_OPTION) {
-			PlayService empService = new PlayService();
-			empService.delete(play.getOrder_id());
+			OrderService orderService = new OrderService();
+			Order thisOrder=orderService.FetchId(order.getOrder_id()).get(0);
+			System.out.println(thisOrder.getTicket_id());
+			String[] tickets=thisOrder.getTicket_id().split(",");
+			TicketService ticketService=new TicketService();
+			SeatService seatService=new SeatService();
+			
+			for(int i=0;i<tickets.length;i++)
+			{
+				Ticket ticket=ticketService.FetchId(Integer.parseInt(tickets[i])).get(0);
+				ticketService.delete(ticket.getTicket_id());
+				seatService.delete(ticket.getSeat_id());
+			}
+			orderService.delete(order.getOrder_id());
 			showTable();
 		}
 	}

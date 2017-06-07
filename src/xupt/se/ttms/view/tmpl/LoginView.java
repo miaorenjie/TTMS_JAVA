@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -19,6 +20,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.text.AttributeSet.FontAttribute;
+
+import xupt.se.ttms.model.Employee;
+import xupt.se.ttms.service.EmployeeService;
+import xupt.se.ttms.service.LoginedUser;
+import xupt.se.ttms.view.system.MainUI;
 
 public class LoginView extends JFrame implements ActionListener {
 
@@ -32,12 +38,12 @@ public class LoginView extends JFrame implements ActionListener {
 	ImageIcon background;
 	JPanel imagePanel;
 	private JLabel labelLoginAct;
-
+	public static LoginView win;
 	
 	public static void main(String[] args) {
-		LoginView win=new LoginView();
+		win=new LoginView();
 		win.setTitle("登陆");
-		win.setBounds(50, 50, 500, 500);
+		win.setBounds(600, 50, 500, 500);
 	}
 	// LoginListener listener;
 	public LoginView() {
@@ -111,18 +117,15 @@ public class LoginView extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getActionCommand().equals("确定")) {
-			if (textField.getText().equals("admin")
-					&& password.getText().equals("admin")) {
-
-//				WinMenu winMenu = new WinMenu();
-//				winMenu.setTitle("菜单窗口");
-//				winMenu.setBounds(50, 50, 500, 500);
-//				this.setVisible(false);
-			} else {
-
-				JOptionPane.showMessageDialog(this, "密码错误", "警告",
-						JOptionPane.ERROR_MESSAGE);
-				password.setText(null);
+			EmployeeService employeeService=new EmployeeService();
+			List<Employee> employees=employeeService.Fetch(Employee.USERNAME+" = "+textField.getText()+" AND "+Employee.PASSWORD+" = "+password.getText());
+			if(employees.size()==0)
+				JOptionPane.showMessageDialog(null, "用户名或密码错误！");
+			else {
+				LoginedUser loginedUser=LoginedUser.getInstance();
+				loginedUser.setEmployee(employees.get(0));
+				new MainUI(); 
+				win.setVisible(false);
 			}
 		}
 		if (e.getActionCommand().equals("取消")) {

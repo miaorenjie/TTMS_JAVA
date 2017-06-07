@@ -1,4 +1,4 @@
-package xupt.se.ttms.view.schedule;
+package xupt.se.ttms.view.sellticket;
 
 import java.awt.Color;
 import java.awt.Label;
@@ -28,7 +28,9 @@ import xupt.se.ttms.model.ScheduleInfo;
 import xupt.se.ttms.model.Studio;
 import xupt.se.ttms.service.PlayService;
 import xupt.se.ttms.service.ScheduleService;
+import xupt.se.ttms.service.SellTicketService;
 import xupt.se.ttms.service.StudioSrv;
+import xupt.se.ttms.view.system.MainUI;
 import xupt.se.ttms.view.tmpl.*;
 
 class ScheduleTable {
@@ -130,7 +132,7 @@ class ScheduleTable {
 	}
 }
 
-public class ScheduleMgrUI extends MainUITmpl {
+public class SellTicketSchedule extends MainUITmpl {
 	/**
 	 * 
 	 */
@@ -148,7 +150,7 @@ public class ScheduleMgrUI extends MainUITmpl {
 	ScheduleTable tms; //显示演出厅列表
 
 
-	public ScheduleMgrUI() {
+	public SellTicketSchedule() {
 		super();
 	}
 
@@ -157,7 +159,7 @@ public class ScheduleMgrUI extends MainUITmpl {
 	protected void initContent() {
 		Rectangle rect = contPan.getBounds();
 
-		ca1 = new JLabel("演出计划管理", JLabel.CENTER);
+		ca1 = new JLabel("请选择演出计划", JLabel.CENTER);
 		ca1.setBounds(0, 5, rect.width, 30);
 		ca1.setFont(new java.awt.Font("宋体", 1, 20));
 		ca1.setForeground(Color.blue);
@@ -185,7 +187,7 @@ public class ScheduleMgrUI extends MainUITmpl {
 		});
 		contPan.add(btnQuery);
 
-		btnAdd = new JButton("添加");
+		btnAdd = new JButton("购买");
 		btnAdd.setBounds(rect.width - 220, rect.height - 45, 60, 30);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent Event) {
@@ -194,23 +196,7 @@ public class ScheduleMgrUI extends MainUITmpl {
 		});
 		contPan.add(btnAdd);
 
-		btnEdit = new JButton("修改");
-		btnEdit.setBounds(rect.width - 150, rect.height - 45, 60, 30);
-		btnEdit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-				btnModClicked();
-			}
-		});
-		contPan.add(btnEdit);
-
-		btnDel = new JButton("删除");
-		btnDel.setBounds(rect.width - 80, rect.height - 45, 60, 30);
-		btnDel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent Event) {
-				btnDelClicked();
-			}
-		});
-		contPan.add(btnDel);
+		
 		contPan.add(ca1);
 		
 		tms = new ScheduleTable(jsc);
@@ -219,69 +205,82 @@ public class ScheduleMgrUI extends MainUITmpl {
 	}
 
 	private void btnAddClicked() {
-
-		ScheduleAddUI addStuUI=null;
-		StudioSrv studioSrv=new StudioSrv();
-		List<Studio>studios=studioSrv.FetchAll();
-		String []studioName=new String[studios.size()];
-		for(int i=0;i<studios.size();i++)
-			studioName[i]=studios.get(i).getName();
-		System.out.println(studios.size()+"..");
 		
-		PlayService playService=new PlayService();
-		List<PlayInfo>playInfos=playService.FetchAll();
-		String []playName=new String[playInfos.size()];
-		for(int i=0;i<playInfos.size();i++)
-			playName[i]=playInfos.get(i).getPlay_name();
-		
-		addStuUI = new ScheduleAddUI();
-		addStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		addStuUI.setPlayList(playName);
-		addStuUI.setStudioList(studioName);
-		System.out.println(studioName.length+"--");
-		addStuUI.setWindowName("添加演出计划");
-		addStuUI.toFront();
-		addStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-		addStuUI.setVisible(true);
-		if (addStuUI.getReturnStatus()) {
-			showTable();
+		ScheduleInfo scheduleInfo = tms.getScheduleInfo();
+		if(scheduleInfo==null)
+		{
+			JOptionPane.showMessageDialog(null, "请选择要购买的演出计划");
+			return; 
 		}
+		MainUI.panel2.removeAll();
+		ScheduleService scheduleService=new ScheduleService();
+		scheduleInfo=scheduleService.FetchId(scheduleInfo.getSched_id()).get(0);
+		SellTicketService.getChooseInfo().setSchedule_id(scheduleInfo.getSched_id());
+		SellTicketUI sellTicketUI=new SellTicketUI();
+		MainUI.panel2.add(sellTicketUI);
+		MainUI.panel2.repaint();
+//		ScheduleAddUI addStuUI=null;
+//		StudioSrv studioSrv=new StudioSrv();
+//		List<Studio>studios=studioSrv.FetchAll();
+//		String []studioName=new String[studios.size()];
+//		for(int i=0;i<studios.size();i++)
+//			studioName[i]=studios.get(i).getName();
+//		System.out.println(studios.size()+"..");
+//		
+//		PlayService playService=new PlayService();
+//		List<PlayInfo>playInfos=playService.FetchAll();
+//		String []playName=new String[playInfos.size()];
+//		for(int i=0;i<playInfos.size();i++)
+//			playName[i]=playInfos.get(i).getPlay_name();
+//		
+//		addStuUI = new ScheduleAddUI();
+//		addStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//		addStuUI.setPlayList(playName);
+//		addStuUI.setStudioList(studioName);
+//		System.out.println(studioName.length+"--");
+//		addStuUI.setWindowName("添加演出计划");
+//		addStuUI.toFront();
+//		addStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
+//		addStuUI.setVisible(true);
+//		if (addStuUI.getReturnStatus()) {
+//			showTable();
+//		}
 	}
 
 	private void btnModClicked() {
-		ScheduleInfo scheduleInfo = tms.getScheduleInfo();
-		if(null== scheduleInfo){
-			JOptionPane.showMessageDialog(null, "请选择要修改的演出厅");
-			return; 
-		}
-		
-		StudioSrv studioSrv=new StudioSrv();
-		List<Studio>studios=studioSrv.FetchAll();
-		String []studioName=new String[studios.size()];
-		for(int i=0;i<studios.size();i++)
-			studioName[i]=studios.get(i).getName();
-		System.out.println(studios.size()+"..");
-		
-		PlayService playService=new PlayService();
-		List<PlayInfo>playInfos=playService.FetchAll();
-		String []playName=new String[playInfos.size()];
-		for(int i=0;i<playInfos.size();i++)
-			playName[i]=playInfos.get(i).getPlay_name();
-		
-		ScheduleEditUI modStuUI = new ScheduleEditUI(scheduleInfo);
-		modStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		modStuUI.setWindowName("修改演出厅");
-		modStuUI.initData(scheduleInfo);
-		modStuUI.setPlayList(playName);
-		modStuUI.setStudioList(studioName);
-		modStuUI.toFront();
-		modStuUI.setModal(true);
-		modStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-		modStuUI.setVisible(true);
-
-		if (modStuUI.getReturnStatus()) {
-			showTable();
-		}	
+//		ScheduleInfo scheduleInfo = tms.getScheduleInfo();
+//		if(null== scheduleInfo){
+//			JOptionPane.showMessageDialog(null, "请选择要修改的演出厅");
+//			return; 
+//		}
+//		
+//		StudioSrv studioSrv=new StudioSrv();
+//		List<Studio>studios=studioSrv.FetchAll();
+//		String []studioName=new String[studios.size()];
+//		for(int i=0;i<studios.size();i++)
+//			studioName[i]=studios.get(i).getName();
+//		System.out.println(studios.size()+"..");
+//		
+//		PlayService playService=new PlayService();
+//		List<PlayInfo>playInfos=playService.FetchAll();
+//		String []playName=new String[playInfos.size()];
+//		for(int i=0;i<playInfos.size();i++)
+//			playName[i]=playInfos.get(i).getPlay_name();
+//		
+//		ScheduleEditUI modStuUI = new ScheduleEditUI(scheduleInfo);
+//		modStuUI.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//		modStuUI.setWindowName("修改演出厅");
+//		modStuUI.initData(scheduleInfo);
+//		modStuUI.setPlayList(playName);
+//		modStuUI.setStudioList(studioName);
+//		modStuUI.toFront();
+//		modStuUI.setModal(true);
+//		modStuUI.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
+//		modStuUI.setVisible(true);
+//
+//		if (modStuUI.getReturnStatus()) {
+//			showTable();
+//		}	
 	}
 
 	private void btnDelClicked() {
@@ -316,8 +315,8 @@ public class ScheduleMgrUI extends MainUITmpl {
 	
 
 	public static void main(String[] args) {
-		ScheduleMgrUI frmStuMgr = new ScheduleMgrUI();
-		frmStuMgr.setVisible(true);
+//		ScheduleMgrUI frmStuMgr = new ScheduleMgrUI();
+//		frmStuMgr.setVisible(true);
 
 	}
 }

@@ -38,7 +38,11 @@ public class EmployeeEditUI extends EmployeeAddUI{
 		txtname.setText(emp.getEmpName());
 		txttel.setText(emp.getEmpTel());
 		txtemail.setText(emp.getEmpEmail());
-		txttype.setText(emp.getEmpType());
+		if(emp.getEmpType().equals("经理"))
+			employeeType.setSelectedIndex(0);
+		else {
+			employeeType.setSelectedIndex(1);
+		}
 		txtadress.setText(emp.getEmpAdress());
 	
 //		txttel.setText(Integer.toString(stu.getRowCount()));
@@ -62,7 +66,7 @@ public class EmployeeEditUI extends EmployeeAddUI{
 //			emp.setEmpPassword(txtpass.getText());
 //			emp.setEmpUserName(txtUname.getText());
 			emp.setEmpTel(txttel.getText());
-			emp.setEmpType(txttype.getText());
+			emp.setEmpType((String)employeeType.getSelectedItem());
 			emp.setEmpEmail(txtemail.getText());
 			
 				

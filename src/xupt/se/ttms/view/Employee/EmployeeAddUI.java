@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
@@ -27,6 +28,7 @@ public class EmployeeAddUI extends PopUITmpl implements ActionListener {
 	private JLabel lbeid,lbename,lbeuname,lbepass,lbeadress,lbetel,lbeemail,lbetype;
 	protected JTextField txtname, txtid, txtUname,txtpass,txttel,txtemail,txttype;
 	protected JTextArea txtadress;
+	protected JComboBox<String>employeeType;
 	
 	public  EmployeeAddUI() {
 		System.out.println(456);
@@ -40,12 +42,7 @@ public class EmployeeAddUI extends PopUITmpl implements ActionListener {
 		
 		this.setTitle("添加员工信息");
 		System.out.println(123);
-		lbeid = new JLabel("ID:");
-		lbeid.setBounds(110, 30, 80, 30);
-		contPan.add(lbeid);
-		txtid = new JTextField();
-		txtid.setBounds(200, 30, 120, 30);
-		contPan.add(txtid);
+
 
 		lbename = new JLabel("姓名:");
 		lbename.setBounds(390, 30, 80, 30);
@@ -82,12 +79,14 @@ public class EmployeeAddUI extends PopUITmpl implements ActionListener {
 		txtemail.setBounds(480, 130, 120, 30);
 		contPan.add(txtemail);
 		
-		lbetype = new JLabel("类型:");
+		lbetype = new JLabel("职位:");
 		lbetype.setBounds(110, 180, 80, 30);
 		contPan.add(lbetype);
-		txttype = new JTextField();
-		txttype.setBounds(200, 180, 120, 30);
-		contPan.add(txttype);
+		String []type={"经理","售票员"};
+		employeeType = new JComboBox<String>(type);
+		
+		employeeType.setBounds(200, 180, 120, 30);
+		contPan.add(employeeType);
 		
 		lbeadress = new JLabel("地址:");
 		lbeadress.setBounds(390, 180, 80, 30);
@@ -155,8 +154,10 @@ public class EmployeeAddUI extends PopUITmpl implements ActionListener {
 			emp.setEmpAdress(txtadress.getText());
 			emp.setEmpPassword(txtpass.getText());
 			emp.setEmpUserName(txtUname.getText());
+			System.out.println(txtUname.getText()+"--用户名");
 			emp.setEmpTel(txttel.getText());
-			emp.setEmpType(txttype.getText());
+		
+			emp.setEmpType((String)employeeType.getSelectedItem());
 			emp.setEmpEmail(txtemail.getText());
 			
 			empService.add(emp);
