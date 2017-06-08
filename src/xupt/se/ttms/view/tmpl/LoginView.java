@@ -56,7 +56,7 @@ public class LoginView extends JFrame implements ActionListener {
 	private void init() {
 
 		setLayout(new FlowLayout());
-		background = new ImageIcon("G:\\picture\\LoginBackground.png");
+		background = new ImageIcon("Login.jpg");
 		JLabel label = new JLabel(background);
 		label.setBounds(0, 0, background.getIconWidth(),
 				background.getIconHeight());

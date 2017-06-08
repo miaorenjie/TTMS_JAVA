@@ -178,11 +178,13 @@ public class ScheduleAddUI extends PopUITmpl implements ActionListener {
 			ScheduleInfo scheduleInfo=new ScheduleInfo();
 			
 			StudioSrv studioSrv=new StudioSrv();
-			List <Studio>list=studioSrv.Fetch("studio_name = "+studioList[jComboBox.getSelectedIndex()]);
+			System.out.println(studioList[jComboBox.getSelectedIndex()]);
+			List <Studio>list=studioSrv.Fetch("studio_name = '"+studioList[jComboBox.getSelectedIndex()]+"'");
+			
 			Studio studio=list.get(0);
 			
 			PlayService playService=new PlayService();
-			List <PlayInfo>plist=playService.Fetch("play_name = "+playList[jComboBox2.getSelectedIndex()]);
+			List <PlayInfo>plist=playService.Fetch("play_name = '"+playList[jComboBox2.getSelectedIndex()]+"'");
 			PlayInfo playInfo=plist.get(0);
 			
 			scheduleInfo.setSchedule_price(Float.parseFloat(jTextField2.getText()));

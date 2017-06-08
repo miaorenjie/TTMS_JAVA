@@ -21,9 +21,12 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
+import xupt.se.ttms.model.PlayInfo;
 import xupt.se.ttms.model.Studio;
+import xupt.se.ttms.service.PlayService;
 import xupt.se.ttms.service.StudioSrv;
 import xupt.se.ttms.view.tmpl.*;
 
@@ -45,10 +48,10 @@ class StudioTable {
 			};
 		};
 		tabModel.addColumn("id");
-		tabModel.addColumn("name");
-		tabModel.addColumn("row");
-		tabModel.addColumn("column");
-		tabModel.addColumn("desciption");
+		tabModel.addColumn("影厅名");
+		tabModel.addColumn("行数");
+		tabModel.addColumn("列数");
+		tabModel.addColumn("介绍");
 		//初始化列明
 		jt=new JTable(tabModel);	
 		
@@ -263,11 +266,19 @@ public class StudioMgrUI extends MainUITmpl {
 	}
 
 	private void btnQueryClicked() {
+		List<Studio>stuList=new StudioSrv().FetchAll();
+		List<Studio>searchInfos=new ArrayList<>();
+		
 		if (!input.getText().equals("")) {
 			//请自行补充
-
+			for(int i=0;i<stuList.size();i++)
+			{
+				if(stuList.get(i).getName().contains(input.getText()))
+					searchInfos.add(stuList.get(i));
+			}
+			tms.showStudioList(searchInfos);
 		} else {
-			JOptionPane.showMessageDialog(null, "请输入检索条件");
+			tms.showStudioList(stuList);
 		}
 	}
 

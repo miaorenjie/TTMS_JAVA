@@ -92,6 +92,7 @@ public class StudioDAO implements iStudioDAO {
 			if(!condt.isEmpty())
 				sql+= " where " + condt;
 			DBUtil db = new DBUtil();
+			System.out.println(sql);
 			if(!db.openConnection()){
 				System.out.print("fail to connect database");
 				return null;

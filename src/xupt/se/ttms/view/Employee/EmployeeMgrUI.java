@@ -21,6 +21,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import xupt.se.ttms.model.Employee;
@@ -110,11 +111,18 @@ class EmployeeTable {
 			Employee emp = new Employee();
 			emp.setEmpId(Integer.parseInt(jt.getValueAt(rowSel, 0).toString()));
 			emp.setEmpName(jt.getValueAt(rowSel, 1).toString());
-			emp.setEmpTel(jt.getValueAt(rowSel, 2).toString());
+			emp.setEmpTel("");
+			if(jt.getValueAt(rowSel, 2)!=null)	
+				emp.setEmpTel(jt.getValueAt(rowSel, 2).toString());
+			if(jt.getValueAt(rowSel, 3)!=null)	
 			emp.setEmpAdress(jt.getValueAt(rowSel, 3).toString());
+			if(jt.getValueAt(rowSel, 4)!=null)	
 			emp.setEmpEmail(jt.getValueAt(rowSel, 4).toString());
+			if(jt.getValueAt(rowSel, 5)!=null)	
 			emp.setEmpType(jt.getValueAt(rowSel, 5).toString());
+			if(jt.getValueAt(rowSel, 6)!=null)	
 			emp.setEmpUserName(jt.getValueAt(rowSel, 6).toString());
+			if(jt.getValueAt(rowSel, 7)!=null)	
 			emp.setEmpPassword(jt.getValueAt(rowSel, 7).toString());
 
 			return emp;
@@ -300,11 +308,19 @@ public class EmployeeMgrUI extends MainUITmpl {
 	}
 
 	private void btnQueryClicked() {
+		List<Employee>stuList=new EmployeeService().FetchAll();
+		List<Employee>searchInfos=new ArrayList<>();
+		
 		if (!input.getText().equals("")) {
 			//请自行补充
-
+			for(int i=0;i<stuList.size();i++)
+			{
+				if(stuList.get(i).getEmpName().contains(input.getText()))
+					searchInfos.add(stuList.get(i));
+			}
+			tms.showEmployeeList(searchInfos);
 		} else {
-			JOptionPane.showMessageDialog(null, "请输入检索条件");
+			tms.showEmployeeList(stuList);
 		}
 	}
 

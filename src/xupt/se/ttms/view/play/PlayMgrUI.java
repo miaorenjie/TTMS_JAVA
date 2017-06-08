@@ -21,6 +21,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import xupt.se.ttms.model.Employee;
@@ -313,12 +314,22 @@ public class PlayMgrUI extends MainUITmpl {
 	}
 
 	private void btnQueryClicked() {
+		List<PlayInfo>playInfos=new PlayService().FetchAll();
+		List<PlayInfo>searchInfos=new ArrayList<>();
+		
 		if (!input.getText().equals("")) {
 			//请自行补充
-
+			for(int i=0;i<playInfos.size();i++)
+			{
+				if(playInfos.get(i).getPlay_name().contains(input.getText()))
+					searchInfos.add(playInfos.get(i));
+			}
+			tms.showPlayList(searchInfos);
 		} else {
-			JOptionPane.showMessageDialog(null, "请输入检索条件");
+			tms.showPlayList(playInfos);
 		}
+		
+	
 	}
 
 	private void showTable() {

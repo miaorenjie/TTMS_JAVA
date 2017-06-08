@@ -1,4 +1,4 @@
-﻿/*==============================================================*/
+﻿?/*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
 /* Created on:     2016/5/16 15:40:40                           */
 /*==============================================================*/
@@ -28,9 +28,9 @@ create table employee
    emp_tel_num          char(20),
    emp_addr             varchar(200),
    emp_email            varchar(100),
-   emp_passWord         CHAR(20)，
-   emp_userName         CHAR(20)，
-   emp_type             CHAR(20)，
+   emp_passWord         CHAR(20),
+   emp_userName         CHAR(20),
+   emp_type             CHAR(20),
    primary key (emp_id)
 );
 
@@ -44,13 +44,13 @@ create table play
    play_lang_id         int,
    play_name            varchar(200),
    play_introduction    varchar(2000),
-   play_image           LONGBLOB，
-   play_length          INT(11)，
-   play_director        CHAR(20)，
+   play_image           LONGBLOB,
+   play_length          INT(11),
+   play_director        CHAR(20),
    play_ticket_price    numeric(10,2),
-   play_status          smallint comment，
-   play_type            CHAR(20)，
-
+   play_type            CHAR(20),
+   play_protagonist     char(20),
+   play_status          char(20),
    primary key (play_id)
 );
 
@@ -62,10 +62,10 @@ create table sale
    sale_ID              bigint not null auto_increment,
    emp_id               int,
    sale_time            datetime,
-   sale_payment         decimal(10,2),
-   sale_change          numeric(10,2),
-   ticket_id            CHAR(200)，
-   order_price          float，
+   sale_payment        float,
+   sale_change         float,
+   ticket_id            CHAR(200),
+   order_price          float,
 
    primary key (sale_ID)
 );
@@ -90,8 +90,8 @@ create table schedule
    sched_id             int not null auto_increment,
    studio_id            int,
    play_id              int,
-   sched_time           datetime not null,
-   sched_ticket_price   numeric(10,2),
+   sched_time           char(20),
+   schedule_price  float,
    primary key (sched_id)
 );
 
@@ -131,9 +131,8 @@ create table ticket
    seat_id              int,
    schedule_id          int,
    play_id              int,
-   ticket_price         numeric(10,2),
-   ticket_status        smallint comment ，
-   ticket_date          VARCHAR(45)，
+   ticket_price         float,
+   ticket_date          VARCHAR(45),
    primary key (ticket_id)
 );
 

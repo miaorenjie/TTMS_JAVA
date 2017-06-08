@@ -21,6 +21,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import xupt.se.ttms.model.PlayInfo;
@@ -299,11 +300,20 @@ public class SellTicketSchedule extends MainUITmpl {
 	}
 
 	private void btnQueryClicked() {
+		List<ScheduleInfo>scheduleInfos=new ScheduleService().FetchAll();
+		List<ScheduleInfo>searchInfos=new ArrayList<>();
+		PlayService playService=new PlayService();
+		
 		if (!input.getText().equals("")) {
 			//请自行补充
-
+			for(int i=0;i<scheduleInfos.size();i++)
+			{
+				if(playService.FetchId(scheduleInfos.get(i).getPlay_id()).get(0).getPlay_name().contains(input.getText()))
+					searchInfos.add(scheduleInfos.get(i));
+			}
+			tms.showScheduleList(searchInfos);
 		} else {
-			JOptionPane.showMessageDialog(null, "请输入检索条件");
+			tms.showScheduleList(scheduleInfos);
 		}
 	}
 
